@@ -67,7 +67,10 @@ function getTweets() {
 
 function getSong() {
     //console.log(process.argv[3]);
-    var songName = 'The Sign by Ace of Base';
+    var songName = 'The Sign Ace of Base';
+    // if user enters a song, search the info of user input, otherwise print The Sign by Ace of Base
+    input.length !== 0 ? songName = input : songName;
+    
     var spotify = new Spotify({
         id: '87bc248a3efb4703901764e0e71ade24',
         secret: '593730fdee5c48c295a4cf0d4b381509'
