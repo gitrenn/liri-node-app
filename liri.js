@@ -4,6 +4,8 @@ var Spotify = require("node-spotify-api");
 var request = require("request");
 var inquirer = require("inquirer");
 var fs = require("fs");
+var textFile = "log.txt";
+var result = [];
 
 var commands = process.argv[2];
 var input = process.argv.slice(3).join();
@@ -27,7 +29,8 @@ function runCommands() {
             break;
 
         default:
-            console.log("Invalid commands!");
+            console.log("Invalid commands! Please only enter valid commands -" + "\n" +
+            "'my-tweets', 'spotify-this-song', 'movie-this', or 'do-what-it-says'");
             break;
     }
 
@@ -47,9 +50,13 @@ function getTweets() {
     client.get("statuses/user_timeline", params, function (error, tweets, response) {
         if (!error) {
             tweets.forEach(function (tweet) {
-                console.log(tweet.text);
-                console.log("---------");
+                var twitterResults = tweet.text + "\n";
+                console.log(twitterResults);
+                result.push(twitterResults);
+                
             });
+            
+            appendResults();
         }
     });
 }// end of getTweets function 
@@ -69,15 +76,22 @@ function getSong() {
             return console.log("Error occurred: " + err);
         }
         // * Artist(s)
-        console.log("Artist(s): " + JSON.stringify(data.tracks.items[0].artists[0].name));
+        var artist = "Artist(s): " + JSON.stringify(data.tracks.items[0].artists[0].name);
+        
         // * The song's name
-        console.log("Song: " + JSON.stringify(data.tracks.items[0].name));
-
+        var song = "Song: " + JSON.stringify(data.tracks.items[0].name);
+       
         // * A preview link of the song from Spotify
-        console.log("Preview Link: " + JSON.stringify(data.tracks.items[0].preview_url));
+        var link = "Preview Link: " + JSON.stringify(data.tracks.items[0].preview_url);
 
         // * The album that the song is from
-        console.log("Album Name: " + JSON.stringify(data.tracks.items[0].album.name));
+        var album = "Album Name: " + JSON.stringify(data.tracks.items[0].album.name);
+        // concatenate results
+        var spotifyResults = artist + "\n" + song + "\n" + link + "\n" + album;
+        // print results 
+        console.log(spotifyResults);
+        result.push(spotifyResults);
+        appendResults();
     });
 }// end of getSong function
 
@@ -91,21 +105,34 @@ function getMovie() {
     request(queryUrl, function (error, response, body) {
         if (!error && response.statusCode === 200) {
             // * Title of the movie.
-            console.log("Title: " + JSON.parse(body).Title);
+            var title = "Title: " + JSON.parse(body).Title;
+           
             // * Year the movie came out.
-            console.log("Year: " + JSON.parse(body).Year);
+            var year = "Year: " + JSON.parse(body).Year;
+          
             // * IMDB Rating of the movie.
-            console.log("IMDB Ratings: " + JSON.parse(body).imdbRating);
+            var imdb = "IMDB Ratings: " + JSON.parse(body).imdbRating;
+            
             // * Rotten Tomatoes Rating of the movie.
-            console.log("Rottern Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value);
+            var rt = "Rottern Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value;
+            
             // * Country where the movie was produced.
-            console.log("Country: " + JSON.parse(body).Country);
+            var country = "Country: " + JSON.parse(body).Country;
+            
             // * Language of the movie.
-            console.log("Language: " + JSON.parse(body).Language);
+            var language = "Language: " + JSON.parse(body).Language;
+           
             // * Plot of the movie.
-            console.log("Plot: " + JSON.parse(body).Plot);
+            var plot = "Plot: " + JSON.parse(body).Plot;
+         
             // * Actors in the movie.
-            console.log("Actors: " + JSON.parse(body).Actors);
+            var actors = "Actors: " + JSON.parse(body).Actors;
+            // concatenate results
+            var movieResults = title + "\n" + year + "\n" + imdb + "\n" + rt + "\n" + country + "\n" + language + "\n" + plot + "\n" + actors;
+            // print results
+            console.log(movieResults);
+            result.push(movieResults);
+            appendResults();
         }
     });
 }// end of get movie function 
@@ -126,6 +153,18 @@ function readFile() {
         input = dataArr[1];    
         // run commands read from random.txt file
         runCommands();
+    });
+}
+
+function appendResults(){
+    fs.appendFile(textFile, result, function(err){
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.log("");
+            console.log("Results have been appended to log.txt file!");
+        }
     });
 }
 
