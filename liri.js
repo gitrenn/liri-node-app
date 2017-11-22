@@ -3,45 +3,34 @@ var Twitter = require("twitter");
 var Spotify = require("node-spotify-api");
 var request = require("request");
 var inquirer = require("inquirer");
+var fs = require("fs");
 
 var commands = process.argv[2];
 var input = process.argv.slice(3).join();
 
-// prompt the user to provide information they want to get
-// inquirer.prompt([
-//     {
-//         type: "input",
-//         name: "",
-//         message:""
-//     }
-// ]).then(function(response){
+function runCommands() {
+    switch (commands) {
+        case "my-tweets":
+            getTweets();
+            break;
 
-// })
+        case "spotify-this-song":
+            getSong();
+            break;
 
-// process.argv.forEach(function (item) {
-//     console.log(item);
-// })
+        case "movie-this":
+            getMovie();
+            break;
 
-switch (commands) {
-    case "my-tweets":
-        getTweets();
-        break;
+        case "do-what-it-says":
+            readFile();
+            break;
 
-    case "spotify-this-song":
-        getSong();
-        break;
+        default:
+            console.log("Invalid commands!");
+            break;
+    }
 
-    case "movie-this":
-        getMovie();
-        break;
-
-    case "do-what-it-says":
-        readFile();
-        break;
-
-    default:
-        console.log("Invalid commands!");
-        break;
 }
 
 function getTweets() {
@@ -121,3 +110,23 @@ function getMovie() {
     });
 }// end of get movie function 
 
+function readFile() {
+    // read from random.txt file 
+    fs.readFile("random.txt", "utf8", function (error, data) {
+        if (error) {
+            return console.log(error);
+        }
+        // split it by comma and trim empty space
+        var dataArr = data.split(",");
+        dataArr = dataArr.map(function (elem) {
+            return elem.trim();
+        });
+        
+        commands = dataArr[0];
+        input = dataArr[1];    
+        // run commands read from random.txt file
+        runCommands();
+    });
+}
+
+runCommands();
